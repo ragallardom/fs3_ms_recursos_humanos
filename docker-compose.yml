@@ -1,0 +1,15 @@
+services:
+  db-rrhh:
+    image: postgres:18.3-alpine3.23
+    container_name: innovatech-db-rrhh
+    environment:
+      POSTGRES_USER: user_rrhh
+      POSTGRES_PASSWORD: admin123
+      POSTGRES_DB: rrhh_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - rrhh_data:/var/lib/postgresql
+
+volumes:
+  rrhh_data:
