@@ -15,6 +15,8 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+    networks:
+      - rrhh-network
 
   ms-rrhh-api:
     build: .
@@ -25,7 +27,7 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://innovatech-db-rrhh:5432/rrhh_db
       - SPRING_DATASOURCE_USERNAME=user_rrhh
       - SPRING_DATASOURCE_PASSWORD=admin123
-      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=validate
     depends_on:
       db-rrhh:
         condition: service_healthy
