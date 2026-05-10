@@ -3,11 +3,11 @@ package cl.innovatech.rrhh.strategy;
 import cl.innovatech.rrhh.model.Empleado;
 import org.springframework.stereotype.Component;
 
-@Component("dev")
-public class DeveloperCapacityStrategy implements CapacityStrategy {
+@Component("ux")
+public class UXCapacityStrategy implements CapacityStrategy {
 
     @Override
     public int calcularDisponibilidad(Empleado e) {
-        return 40 - e.getHorasAsignadas();
+        return 35 - e.getHorasAsignadas();
     }
 }
