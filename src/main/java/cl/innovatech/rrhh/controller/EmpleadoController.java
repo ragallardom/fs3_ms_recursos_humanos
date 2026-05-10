@@ -1,6 +1,7 @@
 package cl.innovatech.rrhh.controller;
 
 import cl.innovatech.rrhh.service.EmpleadoService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -14,7 +15,9 @@ public class EmpleadoController {
     }
 
     @GetMapping("/{id}/capacity")
-    public int obtenerCapacidad(@PathVariable Long id) {
-        return empleadoService.calcularDisponibilidad(id);
+    public ResponseEntity<Double> obtenerCapacidad(@PathVariable Long id) {
+        double capacidad = empleadoService.calcularDisponibilidad(id);
+
+        return ResponseEntity.ok(capacidad);
     }
 }

@@ -1,36 +1,35 @@
 package cl.innovatech.rrhh.service;
 
+import cl.innovatech.rrhh.exception.EmpleadoNotFoundException;
+import cl.innovatech.rrhh.exception.StrategyNotFoundException;
 import cl.innovatech.rrhh.model.Empleado;
 import cl.innovatech.rrhh.repository.EmpleadoRepository;
 import cl.innovatech.rrhh.strategy.CapacityStrategy;
 import org.springframework.stereotype.Service;
-
-import java.util.Map;
+import java.util.List;
 
 @Service
 public class EmpleadoService {
 
     private final EmpleadoRepository empleadoRepository;
-    private final Map<String, CapacityStrategy> strategies;
+    private final List<CapacityStrategy> capacityStrategies;
 
     public EmpleadoService(EmpleadoRepository empleadoRepository,
-                           Map<String, CapacityStrategy> strategies) {
+                           List<CapacityStrategy> capacityStrategies) {
         this.empleadoRepository = empleadoRepository;
-        this.strategies = strategies;
+        this.capacityStrategies = capacityStrategies;
     }
 
-    public int calcularDisponibilidad(Long id) {
+    public double calcularDisponibilidad(Long id) {
         Empleado empleado = empleadoRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Empleado no encontrado"));
+                .orElseThrow(() -> new EmpleadoNotFoundException("Empleado con ID " + id + " no encontrado"));
 
-        String cargo = empleado.getCargo().toLowerCase();
+        String cargoEmpleado = empleado.getCargo().toUpperCase();
 
-        CapacityStrategy strategy = strategies.get(cargo);
-
-        if (strategy == null) {
-            throw new RuntimeException("No existe estrategia para el cargo: " + cargo);
-        }
-
-        return strategy.calcularDisponibilidad(empleado);
+        return capacityStrategies.stream()
+                .filter(s -> cargoEmpleado.contains(s.getCargoAsociado().toUpperCase()))
+                .findFirst()
+                .map(strategy -> strategy.calcularDisponibilidad(empleado))
+                .orElseThrow(() -> new StrategyNotFoundException("No existe lógica de capacidad para el cargo: " + empleado.getCargo()));
     }
 }

@@ -5,9 +5,16 @@ import org.springframework.stereotype.Component;
 
 @Component("dev")
 public class DeveloperCapacityStrategy implements CapacityStrategy {
+    private static final double MAX_HOURS = 40.0;
 
     @Override
-    public int calcularDisponibilidad(Empleado e) {
-        return 40 - e.getHorasAsignadas();
+    public double calcularDisponibilidad(Empleado e) {
+        if (e == null) return 0.0;
+        return Math.max(0, MAX_HOURS - e.getHorasAsignadas());
+    }
+
+    @Override
+    public String getCargoAsociado() {
+        return "DEVELOPER";
     }
 }
