@@ -28,13 +28,15 @@ public class Empleado {
 
     @NotBlank(message = "El cargo es obligatorio")
     @Column(nullable = false)
-    private String cargo; //
+    private String cargo;
 
+    @Builder.Default
     @Min(value = 0, message = "Las horas asignadas no pueden ser negativas")
     @Max(value = 45, message = "Un empleado no puede exceder las 45 horas semanales")
     @Column(name = "horas_asignadas", nullable = false)
-    private Integer horasAsignadas;
+    private Integer horasAsignadas = 0;
 
+    @Builder.Default
     @Column(nullable = false)
     private Integer capacidadMaxima = 45;
 }
