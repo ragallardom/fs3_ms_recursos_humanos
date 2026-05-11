@@ -1,72 +1,87 @@
 # 🚀 Innovatech Solutions - Microservicio de Recursos Humanos (RRHH)
 
-Este componente es una pieza core de la plataforma inteligente de **Innovatech Solutions**, diseñada para gestionar la disponibilidad y los perfiles profesionales de los empleados de la organización. El microservicio utiliza una arquitectura robusta, desacoplada y completamente contenida para garantizar la consistencia entre entornos.
-
-## 🏗️ Arquitectura y Tecnologías
-
-El sistema sigue un modelo de **Arquitectura Multicapa** (Controller, Service, Repository, Model) con un enfoque en **seguridad operativa y eficiencia de recursos**.
-
-* **Lenguaje:** Java 21 (Runtime optimizado: Eclipse Temurin JRE Alpine)
-* **Framework:** Spring Boot 3.x
-* **Persistencia:** Spring Data JPA / Hibernate
-* **Base de Datos:** PostgreSQL 18.3-alpine
-* **Orquestación:** Docker Compose (Infrastructure as Code)
+Este microservicio constituye el motor crítico de gestión de talento de Innovatech Solutions. Su propósito principal es el cálculo dinámico y preciso de la disponibilidad de carga horaria de los empleados, permitiendo una asignación de proyectos basada en datos reales y reglas de negocio específicas por perfil profesional.
 
 ---
 
-## 🛠️ Infraestructura y Despliegue (Full-Stack Docker)
+## 🏗️ Arquitectura de Software
 
-Para garantizar la **portabilidad absoluta**, tanto la aplicación como la base de datos están integradas en un flujo de orquestación único. Esto elimina la necesidad de pre-instalar JDK o Maven en el host; el proceso de construcción se realiza mediante un **Multi-stage Build** interno en Docker.
+El sistema implementa patrones de diseño de para garantizar un desacoplamiento total entre las reglas de negocio y la capa de infraestructura:
+
+### Strategy Pattern (Patrón Estrategia)
+La lógica de cálculo de capacidad se encuentra encapsulada en estrategias independientes (`DeveloperCapacityStrategy`, `UXCapacityStrategy`). Esto permite que el negocio defina reglas distintas por cargo (ej: 40h base para perfiles técnicos vs 35h para diseño) sin modificar el servicio central.
+
+### Lookup Dinámico por Contrato
+El servicio inyecta automáticamente todas las estrategias disponibles y selecciona la correcta mediante semántica de texto (`contains`) sobre el cargo del empleado, garantizando tolerancia a variaciones en los datos (ej: "Lead Developer" o "Backend Developer").
+
+### Gestión de Errores Semántica
+Se han definido excepciones personalizadas vinculadas a códigos de estado HTTP específicos para una integración limpia:
+
+- `EmpleadoNotFoundException` → **404 Not Found**
+- `StrategyNotFoundException` → **422 Unprocessable Entity**
+
+---
+
+## 🛠️ Stack Tecnológico
+
+- **Backend:** Java 21 (Eclipse Temurin JRE optimizado para Alpine Linux)
+- **Framework:** Spring Boot 3.x con inyección dinámica de estrategias
+- **Persistencia:** Spring Data JPA / Hibernate en modo `validate`
+- **Motor de Base de Datos:** PostgreSQL 18.3-alpine
+- **Orquestación:** Docker Compose (Infraestructura como Código)
+
+---
+
+## 🚀 Guía de Despliegue y Ejecución
 
 ### 📋 Prerrequisitos
 
-* **Docker Desktop:** Instalado y en ejecución (WSL2 recomendado en Windows).
-* **Puertos:** Los puertos `8081` (API) y `5432` (DB) deben estar disponibles.
-
-### 🚀 Instrucciones de Ejecución
-
-1.  **Construcción y Arranque:**
-    Desde la raíz del proyecto (donde se encuentra el archivo `docker-compose.yml`), ejecute:
-    ```bash
-    docker compose up -d --build
-    ```
-
-2.  **Verificación de Servicios:**
-    El microservicio implementa un **Healthcheck** para la base de datos. La API solo iniciará su contexto de Spring una vez que el motor de PostgreSQL esté totalmente listo. Puede monitorear el estado con:
-    ```bash
-    docker compose ps
-    ```
-
-3.  **Acceso al Servicio:**
-    La API estará disponible para recibir peticiones en: `http://localhost:8081`
+- Docker Desktop / Docker Engine (WSL2 recomendado en Windows)
+- Puertos **8081** (API) y **5432** (DB) disponibles en el host
 
 ---
 
-## 🔑 Parámetros de Conexión y Red
+### ⚡ Arranque del Entorno
 
-El sistema utiliza una red aislada (`rrhh-network`) para la comunicación inter-contenedor. La configuración de conexión se inyecta dinámicamente mediante variables de entorno:
+El proyecto utiliza un **Multi-stage Build** para garantizar portabilidad absoluta.  
+Para limpiar volúmenes previos y reconstruir el stack, ejecute:
 
-| Parámetro | Valor Interno (Red Docker) | Valor Externo (Host) |
-| :--- | :--- | :--- |
-| **Host DB** | `innovatech-db-rrhh` | `localhost` |
-| **Puerto DB** | `5432` | `5432` |
-| **Database** | `rrhh_db` | `rrhh_db` |
-| **Usuario** | `user_rrhh` | `user_rrhh` |
+```bash
+docker compose down -v
+docker compose up -d --build
+```
 
----
+## 🗄️ Inicialización de Datos
 
-## 🛡️ Estándares de Seguridad y Diseño Senior
-
-* **Runtime Minimalista:** Se utiliza una imagen JRE basada en **Alpine Linux**, lo que reduce drásticamente el tamaño del artefacto y la superficie de ataque.
-* **Principio de Privilegio Mínimo:** El contenedor de la aplicación se ejecuta bajo un usuario de sistema dedicado (`spring`), evitando el uso de privilegios de `root`.
-* **Estrategia de Persistencia:** Automatización de esquema mediante `ddl-auto=update`, asegurando que el modelo de datos sea siempre consistente con las entidades JPA.
-* **Resiliencia de Arranque:** Uso de directivas `depends_on` con condiciones de salud para evitar fallos de conexión en el arranque inicial.
+Al iniciar, el sistema carga automáticamente un dataset inicial de **120 empleados** de Innovatech.  
+Los cargos han sido normalizados bajo los grupos `DEVELOPER_` y `UX_DESIGNER_` para asegurar la compatibilidad con el motor de estrategias dinámicas.
 
 ---
 
-## 🧪 Calidad y Escalabilidad
+## 🧪 Documentación del API
 
-La lógica de negocio está centralizada en la capa de servicios, facilitando la implementación de pruebas unitarias y la futura integración de algoritmos complejos para el cálculo de capacidad de recursos (Dev, UX, QA).
+### Consultar Capacidad Disponible
+
+Calcula las horas semanales restantes de un empleado según su contrato y carga de trabajo actual.
+
+- **Endpoint:** `GET /api/rrhh/empleados/{id}/capacity`
+- **Puerto:** `8081`
+- **Formato de Respuesta:** `Double` (Precisión decimal para gestión de horas/hombre)
+
+### Mapeo de Errores
+
+- **200 OK:** Cálculo exitoso  
+- **404 NOT FOUND:** El ID proporcionado no existe en la base de datos  
+- **422 UNPROCESSABLE ENTITY:** El empleado tiene un cargo que no cuenta con una lógica de capacidad definida  
 
 ---
-© 2026 Innovatech Solutions - Documentación Técnica de Evaluación (EV2)
+
+## 🛡️ Estándares de Seguridad y Resiliencia
+
+- **Privilegio Mínimo:** El contenedor de la API se ejecuta bajo el usuario de sistema `spring`, nunca como `root`  
+- **Validación de Integridad:** Se utiliza `SPRING_JPA_HIBERNATE_DDL_AUTO=validate` para forzar que el modelo Java y el esquema físico sean idénticos  
+- **Aislamiento de Red:** Comunicación aislada en `rrhh-network`, con exposición externa controlada únicamente al puerto `8081`  
+
+---
+
+© 2026 Innovatech Solutions - Ingeniería Civil Informática - Documentación Técnica Senior (EV2)
