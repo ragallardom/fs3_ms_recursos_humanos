@@ -10,7 +10,7 @@ public class DeveloperCapacityStrategy implements CapacityStrategy {
     @Override
     public double calcularDisponibilidad(Empleado e) {
         if (e == null) return 0.0;
-        return Math.max(0, MAX_HOURS - e.getHorasAsignadas());
+        return Math.max(0, e.getCapacidadMaxima() - e.getHorasAsignadas());
     }
 
     @Override

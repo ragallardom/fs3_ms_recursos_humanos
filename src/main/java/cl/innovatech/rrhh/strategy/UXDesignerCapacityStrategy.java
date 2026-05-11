@@ -18,6 +18,9 @@ public class UXDesignerCapacityStrategy implements CapacityStrategy {
 
     @Override
     public String getCargoAsociado() {
-        return CARGO;
+        return "UX";
     }
+
+
 }
+
