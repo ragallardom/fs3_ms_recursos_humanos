@@ -20,9 +20,13 @@ public class EmpleadoService {
         this.capacityStrategies = capacityStrategies;
     }
 
+    public Empleado buscarPorId(Long id) {
+        return empleadoRepository.findById(id)
+                .orElseThrow(() -> new EmpleadoNotFoundException(id));
+    }
+
     public double calcularDisponibilidad(Long id) {
-        Empleado empleado = empleadoRepository.findById(id)
-                .orElseThrow(() -> new EmpleadoNotFoundException("Empleado con ID " + id + " no encontrado"));
+        Empleado empleado = this.buscarPorId(id); // Reutilizamos el buscador por ID
 
         String cargoEmpleado = empleado.getCargo().toUpperCase();
 
