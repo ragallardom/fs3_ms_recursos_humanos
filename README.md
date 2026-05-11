@@ -60,6 +60,18 @@ Los cargos han sido normalizados bajo los grupos `DEVELOPER_` y `UX_DESIGNER_` p
 
 ## 🧪 Documentación del API
 
+### Consultar Detalle de Empleado (Integración BFF)
+
+Recupera el objeto completo del empleado para la resolución de identidades en la capa de orquestación.
+
+- **Endpoint:** `GET /api/rrhh/empleados/{id}`
+- **Puerto:** `8081`
+- **Formato de Respuesta:** `JSON` (Empleado Object)
+
+### Uso Crítico
+
+Este endpoint es consumido por el **BFF** para mapear los campos `nombre` y `cargo` en el resumen del dashboard.
+
 ### Consultar Capacidad Disponible
 
 Calcula las horas semanales restantes de un empleado según su contrato y carga de trabajo actual.
@@ -84,4 +96,4 @@ Calcula las horas semanales restantes de un empleado según su contrato y carga 
 
 ---
 
-© 2026 Innovatech Solutions - Ingeniería Civil Informática - Documentación Técnica Senior (EV2)
+© 2026 Innovatech Solutions - Ingeniería Civil Informática - Documentación Técnica (EV2)
