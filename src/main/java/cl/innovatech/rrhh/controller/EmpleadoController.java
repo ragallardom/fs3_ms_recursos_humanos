@@ -5,6 +5,8 @@ import cl.innovatech.rrhh.service.EmpleadoService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/rrhh/empleados")
 public class EmpleadoController {
@@ -25,4 +27,26 @@ public class EmpleadoController {
         double capacidad = empleadoService.calcularDisponibilidad(id);
         return ResponseEntity.ok(capacidad);
     }
+
+    @PostMapping
+    public ResponseEntity<Empleado> crearEmpleado(@RequestBody Empleado empleado) {
+        return ResponseEntity.status(201).body(empleadoService.crearEmpleado(empleado));
+    }
+
+    @GetMapping
+    public ResponseEntity<List<Empleado>> obtenerTodos() {
+        return ResponseEntity.ok(empleadoService.obtenerTodos());
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Empleado> actualizarEmpleado(@PathVariable Long id, @RequestBody Empleado empleado) {
+        return ResponseEntity.ok(empleadoService.actualizarEmpleado(id, empleado));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> eliminarEmpleado(@PathVariable Long id) {
+        empleadoService.eliminarEmpleado(id);
+        return ResponseEntity.noContent().build();
+    }
+
 }

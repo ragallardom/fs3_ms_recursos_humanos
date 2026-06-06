@@ -36,4 +36,33 @@ public class EmpleadoService {
                 .map(strategy -> strategy.calcularDisponibilidad(empleado))
                 .orElseThrow(() -> new StrategyNotFoundException("No existe lógica de capacidad para el cargo: " + empleado.getCargo()));
     }
+
+    public Empleado crearEmpleado(Empleado empleado) {
+        return empleadoRepository.save(empleado);
+    }
+
+    public List<Empleado> obtenerTodos() {
+        return empleadoRepository.findAll();
+    }
+
+    public Empleado actualizarEmpleado(Long id, Empleado empleadoActualizado) {
+        Empleado empleadoExistente = buscarPorId(id);
+
+        empleadoExistente.setNombre(empleadoActualizado.getNombre());
+        empleadoExistente.setEmail(empleadoActualizado.getEmail());
+        empleadoExistente.setCargo(empleadoActualizado.getCargo());
+        empleadoExistente.setHorasAsignadas(empleadoActualizado.getHorasAsignadas());
+        empleadoExistente.setCapacidadMaxima(empleadoActualizado.getCapacidadMaxima());
+        return empleadoRepository.save(empleadoExistente);
+    }
+
+    public void eliminarEmpleado(Long id) {
+        if (!empleadoRepository.existsById(id)) {
+            throw new EmpleadoNotFoundException(id);
+        }
+        empleadoRepository.deleteById(id);
+    }
+
+
+
 }
